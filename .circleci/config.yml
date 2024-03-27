@@ -409,11 +409,21 @@ jobs:
           deploy: false
 
   deploy_website:
-    executor: small_cpu39
-    working_directory: ~/ParlAI
+    working_directory: ~/ParlAI/website
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
-      - website:
-          deploy: true
+      - checkout
+      - run:
+          name: Deploy the ParlAI website on AWS using Terraform
+          command: |
+            terraform init 
+            apk add --no-cache aws-cli
+            terraform apply -auto-approve 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
   test_website:
     executor: small_cpu39
@@ -433,10 +443,25 @@ jobs:
             echo
             echo 'Testing docs css'
             curl -f -i 'https://parl.ai/docs/_static/css/parlai_theme.css'
+  destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform destroy
+          command: |
+            apk add --no-cache aws-cli
+            terraform plan -destroy -out plan-to-destroy 
+            terraform apply -auto-approve plan-to-destroy
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
 
 workflows:
-  version: 2
   commit:
     jobs:
       - cleaninstall_39
@@ -467,3 +492,11 @@ workflows:
       - test_website:
           requires:
             - deploy_website
+      - hold-destroy:
+          type: approval
+          requires:
+            - deploy_website
+      - destroy:
+          requires:
+            - hold-destroy
+    

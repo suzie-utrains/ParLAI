@@ -405,6 +405,7 @@ jobs:
       - run:
           name: terraform destroy
           command: |
+            cd website
             apk add --no-cache aws-cli
             terraform plan -destroy -out plan-to-destroy 
             terraform apply -auto-approve plan-to-destroy

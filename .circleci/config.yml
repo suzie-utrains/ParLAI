@@ -30,13 +30,13 @@ executors:
 
   gpu_small:
     machine:
-       image: linux-cuda-11:2023.02.1
-    resource_class: gpu.nvidia.small.multi
+       image: linux-cuda-11:default
+    resource_class: gpu.nvidia.medium
 
   gpu_medium:
     machine:
-       image: linux-cuda-11:2023.02.1
-    resource_class: gpu.nvidia.medium.multi
+       image: linux-cuda-11:default
+    resource_class: gpu.nvidia.medium
 
 
 # -------------------------------------------------------------------------------------
@@ -235,7 +235,7 @@ commands:
           key: deps-20230606-<< parameters.cachename >>-{{ checksum "requirements.txt" }}
       - setup
       - installdeps
-      - << parameters.more_installs >>
+     # - << parameters.more_installs >>
       - save_cache:
           key: deps-20230606-<< parameters.cachename >>-{{ checksum "requirements.txt" }}
           paths:
@@ -256,30 +256,6 @@ commands:
             - "~/ParlAI/data"
       - store_test_results:
           path: test-results
-
-  website:
-    description: Build the website
-    steps:
-      - checkout
-      - fixgit
-      - restore_cache:
-          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
-      - setup
-      - installdeps
-      - installtorchcpu
-      - save_cache:
-          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
-          paths:
-            - "~/venv/bin"
-            - "~/venv/lib"
-      - run:
-          working_directory: ~/ParlAI/website
-          name: build the website
-          command: make
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
 
 # -------------------------------------------------------------------------------------
 # Actual jobs
@@ -377,7 +353,26 @@ jobs:
     executor: small_cpu39
     working_directory: ~/ParlAI
     steps:
-      - website
+      - checkout
+      - fixgit
+      - restore_cache:
+          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
+      - setup
+      - installdeps
+      - installtorchcpu
+      - save_cache:
+          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
+          paths:
+            - "~/venv/bin"
+            - "~/venv/lib"
+      - run:
+          working_directory: ~/ParlAI/website
+          name: build the website
+          command: make
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
   deploy_website:
     docker:

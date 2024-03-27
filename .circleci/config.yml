@@ -257,6 +257,30 @@ commands:
       - store_test_results:
           path: test-results
 
+  website:
+    description: Build the website
+    steps:
+      - checkout
+      - fixgit
+      - restore_cache:
+          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
+      - setup
+      - installdeps
+      - installtorchcpu
+      - save_cache:
+          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
+          paths:
+            - "~/venv/bin"
+            - "~/venv/lib"
+      - run:
+          working_directory: ~/ParlAI/website
+          name: build the website
+          command: make
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
 # -------------------------------------------------------------------------------------
 # Actual jobs
 # -------------------------------------------------------------------------------------
@@ -353,26 +377,7 @@ jobs:
     executor: small_cpu39
     working_directory: ~/ParlAI
     steps:
-      - checkout
-      - fixgit
-      - restore_cache:
-          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
-      - setup
-      - installdeps
-      - installtorchcpu
-      - save_cache:
-          key: deps-20230606-bw-{{ checksum "requirements.txt" }}
-          paths:
-            - "~/venv/bin"
-            - "~/venv/lib"
-      - run:
-          working_directory: ~/ParlAI/website
-          name: build the website
-          command: make
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
+      - website
 
   deploy_website:
     docker:
@@ -431,7 +436,7 @@ workflows:
       - build_website:
           filters:
             branches:
-              ignore: main
+              only: main
       - deploy_website:
           requires:
             - build_website

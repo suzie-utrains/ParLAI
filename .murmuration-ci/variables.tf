@@ -12,6 +12,6 @@ variable "bucket_name" {
 variable "cp-path" {
   type = string
   description = "PATH where the website files are located"
-  default = "build"
+  default = "~/ParlAI/website/build"
 }
 

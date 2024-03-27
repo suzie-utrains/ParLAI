@@ -387,7 +387,7 @@ jobs:
       - run:
           name: Deploy the ParlAI website on AWS using Terraform
           command: |
-            cd website
+            cd .murmuration-ci
             ls -la
             terraform init 
             apk add --no-cache aws-cli
@@ -405,7 +405,7 @@ jobs:
       - run:
           name: terraform destroy
           command: |
-            cd website
+            cd .murmuration-ci
             apk add --no-cache aws-cli
             terraform plan -destroy -out plan-to-destroy 
             terraform apply -auto-approve plan-to-destroy

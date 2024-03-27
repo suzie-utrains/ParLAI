@@ -81,6 +81,7 @@ resource "null_resource" "upload_files" {
 
   provisioner "local-exec"  {
       command = <<EOT
+        cd ..
         aws s3 sync ${var.cp-path} s3://${aws_s3_bucket.bucket1.bucket}/ 
       EOT
 }

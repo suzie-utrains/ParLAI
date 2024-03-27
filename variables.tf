@@ -15,8 +15,3 @@ variable "cp-path" {
   default = "website/build"
 }
 
-variable "file-key" {
-  type    = string
-  default = "index.html"
-}
-

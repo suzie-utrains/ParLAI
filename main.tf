@@ -96,11 +96,11 @@ resource "aws_s3_bucket_website_configuration" "bucket" {
   bucket = aws_s3_bucket.bucket1.id
 
   index_document {
-    suffix = var.file-key
+    suffix = "index.html"
   }
 
   error_document {
-    key = var.file-key
+    key = "error.html"
   }
 
   depends_on = [aws_s3_bucket.bucket1]

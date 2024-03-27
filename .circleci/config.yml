@@ -370,7 +370,7 @@ jobs:
           name: build the website
           command: |
               make
-              ls
+              ls -la
       - persist_to_workspace:
           root: .
           paths:
@@ -385,6 +385,8 @@ jobs:
       - run:
           name: Deploy the ParlAI website on AWS using Terraform
           command: |
+            cd website
+            ls -la
             terraform init 
             apk add --no-cache aws-cli
             terraform apply -auto-approve 

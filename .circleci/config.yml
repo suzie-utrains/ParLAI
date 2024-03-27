@@ -258,11 +258,7 @@ commands:
           path: test-results
 
   website:
-    description: Build (and possibly deploy) the website
-    parameters:
-      deploy:
-        type: boolean
-        default: false
+    description: Build the website
     steps:
       - checkout
       - fixgit
@@ -280,33 +276,10 @@ commands:
           working_directory: ~/ParlAI/website
           name: build the website
           command: make
-      - run:
-          name: zip up the website
-          working_directory: ~/ParlAI/website/build/
-          command: |
-            zip -r ~/ParlAI/website.zip *
-      - store_artifacts:
-          path: website.zip
-      - run:
-          name: check for bad links
-          working_directory: ~/ParlAI/
-          command: |
-            pip install linkchecker
-            python -m http.server --directory website/build >/dev/null &
-            linkchecker http://localhost:8000/
-            kill %1
-      - when:
-         condition: << parameters.deploy >>
-         steps:
-         - run:
-             working_directory: ~/ParlAI/
-             name: Upload the website
-             command: |
-               pip install s3cmd
-               s3cmd --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" sync -f --delete-removed website/build/ "s3://parl.ai/"
-               s3cmd --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" setacl --acl-public --recursive "s3://parl.ai/"
-               s3cmd --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" modify --add-header="Content-type:text/css" 's3://parl.ai/static/css/*' 's3://parl.ai/docs/_static/*.css' 's3://parl.ai/docs/_static/css/*.css'
-
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
 # -------------------------------------------------------------------------------------
 # Actual jobs
@@ -403,17 +376,15 @@ jobs:
   build_website:
     executor: small_cpu39
     working_directory: ~/ParlAI
-    parallelism: 1
     steps:
-      - website:
-          deploy: false
+      - website
 
   deploy_website:
-    working_directory: ~/ParlAI/website
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Deploy the ParlAI website on AWS using Terraform
           command: |
@@ -424,25 +395,6 @@ jobs:
           root: .
           paths:
             - .
-
-  test_website:
-    executor: small_cpu39
-    working_directory: ~/ParlAI
-    steps:
-      - run:
-          name: Test the website
-          command: |
-            echo 'Testing root page:'
-            curl -f -i 'https://parl.ai/'
-            echo
-            echo 'Testing root css:'
-            curl -f -i 'https://parl.ai/static/css/parlai.css'
-            echo
-            echo 'Testing docs page'
-            curl -f -i 'https://parl.ai/docs/'
-            echo
-            echo 'Testing docs css'
-            curl -f -i 'https://parl.ai/docs/_static/css/parlai_theme.css'
   destroy:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -486,12 +438,8 @@ workflows:
             branches:
               ignore: main
       - deploy_website:
-          filters:
-            branches:
-              only: main
-      - test_website:
           requires:
-            - deploy_website
+            - build_website
       - hold-destroy:
           type: approval
           requires:

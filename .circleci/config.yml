@@ -390,8 +390,7 @@ jobs:
             cd .murmuration-ci
             ls -la
             terraform init 
-            apk add --no-cache aws-cli
-            terraform apply -auto-approve 
+            terraform plan 
       - persist_to_workspace:
           root: .
           paths:

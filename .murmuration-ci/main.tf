@@ -81,7 +81,7 @@ resource "null_resource" "upload_files" {
 
   provisioner "local-exec"  {
       command = <<EOT
-        cd ..
+        cd .. 
         aws s3 sync ${var.cp-path} s3://${aws_s3_bucket.bucket1.bucket}/ 
       EOT
 }
@@ -101,7 +101,7 @@ resource "aws_s3_bucket_website_configuration" "bucket" {
   }
 
   error_document {
-    key = "error.html"
+    key    = "error.html"
   }
 
   depends_on = [aws_s3_bucket.bucket1]

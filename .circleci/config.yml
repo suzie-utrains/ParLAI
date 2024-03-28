@@ -385,7 +385,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Deploy the ParlAI website on AWS using Terraform
+          name: Inspect the plan to deploy the ParlAI website on AWS using Terraform
           command: |
             cd .murmuration-ci
             ls -la
@@ -405,9 +405,8 @@ jobs:
           name: terraform destroy
           command: |
             cd .murmuration-ci
-            apk add --no-cache aws-cli
-            terraform plan -destroy -out plan-to-destroy 
-            terraform apply -auto-approve plan-to-destroy
+            apk add --no-cache aws-cli 
+            terraform apply -auto-approve 
       - persist_to_workspace:
           root: .
           paths:

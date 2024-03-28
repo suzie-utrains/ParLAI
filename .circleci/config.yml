@@ -388,7 +388,6 @@ jobs:
           name: Inspect the plan to deploy the ParlAI website on AWS using Terraform
           command: |
             cd .murmuration-ci
-            ls -la
             terraform init 
             terraform plan 
       - persist_to_workspace:

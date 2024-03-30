@@ -439,6 +439,9 @@ jobs:
           command: |
             cd .murmuration-ci
             ./test-website.sh
+            ./test-website.sh > results.xml
+      - store_test_results:
+          path: .murmuration-ci
 
            
 workflows:

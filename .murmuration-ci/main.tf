@@ -179,8 +179,8 @@ resource "null_resource" "generate_test_website_script" {
   }
   provisioner "local-exec" {
 
-    command = "sudo chmod 777 test-website.sh"
-    
+    command = "chmod 777 test-website.sh"
+
   }
 
   depends_on = [ aws_cloudfront_distribution.web-distribution ]

@@ -401,7 +401,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: terraform destroy
+          name: terraform apply
           command: |
             cd .murmuration-ci
             apk add --no-cache aws-cli 
@@ -431,8 +431,9 @@ jobs:
 
   test_website:
     executor: small_cpu39
-    working_directory: ~/ParlAI
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: Test the website
           command: |

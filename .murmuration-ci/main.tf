@@ -166,6 +166,22 @@ resource "aws_cloudfront_distribution" "web-distribution" {
   
 }
 
+# ~~~~~~~~~~~~~~~~ Generating Script for testing the website ~~~~~~~~~~~~~~~~~~~~~
+resource "null_resource" "generate_test_website_script" {
+
+  provisioner "local-exec" {
+    command = templatefile("test-website.tpl", {
+
+      parlai_website_endpoint = aws_cloudfront_distribution.web-distribution.domain_name
+
+    })
+    
+  }
+
+  depends_on = [ aws_cloudfront_distribution.web-distribution ]
+
+}
+
 output "INFO" {
   value = "AWS Resources  has been provisioned. Go to http://${aws_cloudfront_distribution.web-distribution.domain_name}"
 }

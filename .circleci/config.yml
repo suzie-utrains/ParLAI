@@ -436,9 +436,10 @@ jobs:
       - run:
           name: Test the website
           command: |
+            cd .murmuration-ci
             ./test-website.sh
 
-            - .
+           
 workflows:
   commit:
     jobs:

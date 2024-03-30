@@ -429,7 +429,16 @@ jobs:
           paths:
             - .
 
+  test_website:
+    executor: small_cpu39
+    working_directory: ~/ParlAI
+    steps:
+      - run:
+          name: Test the website
+          command: |
+            ./test-website.sh
 
+            - .
 workflows:
   commit:
     jobs:
@@ -464,6 +473,9 @@ workflows:
       - apply_website_deployment:
           requires:
             - hold-website_deployment
+      - test_website:
+          requires:
+            - apply_website_deployment
       - hold-destroy:
           type: approval
           requires:

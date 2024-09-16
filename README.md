@@ -2,7 +2,7 @@
  <img width="70%" src="docs/source/\_static/img/parlai.png" />
 </p>
 
-<p align="center">
+<p align="Center">
    <a href="https://github.com/facebookresearch/ParlAI/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="CircleCI" />
   </a>
